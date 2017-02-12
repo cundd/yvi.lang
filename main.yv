@@ -1,0 +1,55 @@
+# Comments start with a hash
+
+# Define a variable with the type `string` and the value `a typed variable 👍`
+myString(string) = "a typed variable 👍"
+
+# The type can be omitted because it is defined by the value
+variable = "a string"
+
+# Often it makes sense to group code to run it later
+# This is done with a block like that:
+callMeMaybe[input(string)] (int) {
+    // Do something here
+}
+
+# Let's explain that:
+# 1. Give it a name - in this case: `callMeMaybe`
+# 2. Make some space to send data to the block: `[...]`
+# 3. Tell what kind of input you expect: `input(string)`
+# 4. Tell what you expect as output: `(int)`
+# 5. Define the code to run - everything between `{` and `}`
+
+
+anotherBlock[arg1(string) arg2(int)] (int) {
+    if arg1 == "hello" {
+        # return the second argument
+        < arg2
+    }
+    < 0
+}
+
+# Run the code in `anotherBlock`
+anotherBlock < "a string arg" 4
+
+
+bin MyBin {
+    functionInsideBin[input(string)] {
+
+    }
+
+    functionInsideBin < "send this to the block"
+}
+
+
+MyBin.functionInsideBin < "send this to the block"
+
+
+Animal(struct) {
+    name (string)
+    age (int)
+}
+
+myAnimal = new Animal[
+    name: "cat"
+    age: 2
+]
