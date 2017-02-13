@@ -75,14 +75,6 @@ pub enum Token {
     Identifier(String),
 }
 
-
-// impl PartialEq for Token {
-//     fn eq(&self, other: &Token) -> bool {
-//         self == other
-//     }
-// }
-//
-
 impl Token {
     pub fn token_for_char(input: char) -> Option<Token> {
         match input {
@@ -157,24 +149,6 @@ impl Token {
         }
 
         Token::NaN
-        //        Err("Could not convert number")
-        //        Ok(Token::Int(2))
-        // Ok(Token::Float(value))
-        //         panic!("Could not convert number")
-
-
-        // if let f = i64::from_str(input) {}
-        //     Ok(int_value) => Ok(Token::Int(int_value)),
-        //     Err => {
-        //         match f64::from_str(input) {
-        //             Ok(int_value) => Ok(Token::Float(int_value)),
-        //             Err(e) => panic!(e),
-        //         }
-        //     }
-        // }
-
-        //::from_str(input);
-        // input.to_string().parse::<i64>())
     }
 }
 
@@ -278,8 +252,6 @@ mod tests {
         Assert::float_token(&Token::token_for_number("0.0030"), 0.003);
         Assert::float_token(&Token::token_for_number("129.0040"), 129.004);
         Assert::float_token(&Token::token_for_number("129.0040000000000000000000"), 129.004);
-        //        Assert::float_token(&Token::token_for_number("9223372036854775807").unwrap(), std::i64::MAX);
-        //        Assert::float_token(&Tokenizer::tokenize("807.00.0001")[0], 807.000001);
     }
 
     #[test]

@@ -1,9 +1,6 @@
 mod token;
 mod assert;
 
-//use token::Token;
-//use token::Token;
-
 use self::token::Token;
 
 pub struct Tokenizer {}
@@ -20,48 +17,9 @@ impl Tokenizer {
         let mut tokens: Vec<Token> = vec![];
         let mut word = String::from("");
         let mut locked = TokenizerLockMode::None;
-        // let mut token;
 
         for c in input.chars() {
-            // if !locked && c == '"' {
-            //     println!("lock");
-            //     // Start of a string
-            //     locked = true;
-            //     continue;
-            // }
-//            println!("{:?}", c);
-
-            // if locked == TokenizerLockMode::None {
-            //     if c == '"' {
-            //         println!("lock");
-            //         // Start of a string
-            //         locked = TokenizerLockMode::Text;
-            //         continue;
-            //     } else if c.is_numeric() {
-            //         println!("consume numeric {}", c);
-            //         word.push(c);
-            //         locked = TokenizerLockMode::Number;
-            //         continue;
-            //     }
-            // } else {
-            //     if c != '"' {
-            //         println!("consume {}", c);
-            //         // Consume the char
-            //         word.push(c);
-            //         continue;
-            //     }
-            //     if c == '"' {
-            //         println!("unlock");
-            //         // End of a string
-            //         locked = TokenizerLockMode::None;
-            //
-            //         tokens.push(Token::Text(word.to_owned()));
-            //         word.clear();
-            //         continue;
-            //     }
-            // }
-
-
+            println!("C Lock: {:?}", locked);
             if locked == TokenizerLockMode::None {
                 if c == '"' {
                     println!("lock text");
@@ -89,7 +47,7 @@ impl Tokenizer {
 
                     tokens.push(Token::token_for_number(&word));
                     word.clear();
-                    continue;
+                    // Unlock and continue with the current char
                 }
             }
 
@@ -107,6 +65,8 @@ impl Tokenizer {
 
                     tokens.push(Token::Text(word.to_owned()));
                     word.clear();
+
+                    // Unlock and continue with the next char
                     continue;
                 }
             }
@@ -122,7 +82,7 @@ impl Tokenizer {
                         word.push(c);
                     } else if !word.is_empty() {
                         // Word boundary
-                        println!("{:?}", Token::token_for_string(&word));
+                        println!("wb: {:?}", Token::token_for_string(&word));
 
                         tokens.push((Token::token_for_string(&word)).unwrap());
                         word.clear();
@@ -132,7 +92,9 @@ impl Tokenizer {
         }
 
         if locked == TokenizerLockMode::Number {
+            println!("locked number");
             tokens.push(Token::token_for_number(&word));
+            word.clear();
         }
 
         if locked != TokenizerLockMode::None {
@@ -142,7 +104,7 @@ impl Tokenizer {
 
         }
         if !word.is_empty() {
-            println!("{:?}", Token::token_for_string(&word));
+            println!("Word not empty {:?}", Token::token_for_string(&word));
             tokens.push(Token::token_for_string(&word).unwrap());
         }
 
@@ -172,7 +134,7 @@ mod tests {
     use super::assert::Assert;
 
     #[test]
-    fn tokenizer() {
+    fn tokenize2() {
         let tokens = Tokenizer::tokenize("hello my name is daniel");
         assert_eq!(5, tokens.len());
 
@@ -184,6 +146,44 @@ mod tests {
 
         let tokens = Tokenizer::tokenize("{hello_my}");
         assert_eq!(3, tokens.len());
+
+        let tokens = Tokenizer::tokenize("myVariable = \"a string value\"");
+        assert_eq!(3, tokens.len());
+        Assert::identifier_token(&tokens[0], "myVariable");
+        assert_eq!(Token::Assignment, tokens[1]);
+        Assert::text_token(&tokens[2], "a string value");
+
+        let tokens = Tokenizer::tokenize("myVariable = 2 + 1");
+        assert_eq!(5, tokens.len());
+        Assert::identifier_token(&tokens[0], "myVariable");
+        assert_eq!(Token::Assignment, tokens[1]);
+        Assert::int_token(&tokens[2], 2);
+        assert_eq!(Token::MathAddition, tokens[3]);
+        Assert::int_token(&tokens[4], 1);
+
+        let tokens = Tokenizer::tokenize("(2 + 1 ) ");
+        assert_eq!(5, tokens.len(), "{:?}", tokens);
+
+        let tokens = Tokenizer::tokenize("(2 + 1)");
+        assert_eq!(5, tokens.len(), "{:?}", tokens);
+
+        let tokens = Tokenizer::tokenize("(2 + 81)");
+        assert_eq!(5, tokens.len(), "{:?}", tokens);
+
+        let tokens = Tokenizer::tokenize("(2 + 1) * 3");
+        assert_eq!(7, tokens.len(), "{:?}", tokens);
+
+        let tokens = Tokenizer::tokenize("myVariable = (2 + 1) * 3");
+        assert_eq!(9, tokens.len(), "{:?}", tokens);
+        Assert::identifier_token(&tokens[0], "myVariable");
+        assert_eq!(Token::Assignment, tokens[1]);
+        assert_eq!(Token::TypeStart, tokens[2]);
+        Assert::int_token(&tokens[3], 2);
+        assert_eq!(Token::MathAddition, tokens[4]);
+        Assert::int_token(&tokens[5], 1);
+        assert_eq!(Token::TypeEnd, tokens[6]);
+        assert_eq!(Token::MathMultiplication, tokens[7]);
+        Assert::int_token(&tokens[8], 3);
     }
 
     #[test]
