@@ -3,8 +3,12 @@ use std::str::FromStr;
 #[derive(Debug, PartialEq)]
 pub enum Token {
     // Single character tokens:
-    // \n
+    // End of file
     Eof,
+
+    // \n
+    Eol,
+
     // #
     Comment,
 
@@ -78,7 +82,8 @@ pub enum Token {
 impl Token {
     pub fn token_for_char(input: char) -> Option<Token> {
         match input {
-            '\n' => Some(Token::Eof),
+            //'\n' => Some(Token::Eof),
+            '\n' => Some(Token::Eol),
 
             '{' => Some(Token::BlockStart),
             '}' => Some(Token::BlockEnd),
@@ -167,7 +172,7 @@ mod tests {
         assert_eq!(Token::TypeStart, Token::token_for_char('(').unwrap());
         assert_eq!(Token::TypeEnd, Token::token_for_char(')').unwrap());
 
-        assert_eq!(Token::Eof, Token::token_for_char('\n').unwrap());
+        assert_eq!(Token::Eol, Token::token_for_char('\n').unwrap());
 
         assert_eq!(Token::MemoryStart, Token::token_for_char('[').unwrap());
         assert_eq!(Token::MemoryEnd, Token::token_for_char(']').unwrap());
@@ -218,7 +223,7 @@ mod tests {
         assert_eq!(Token::TypeStart, Token::token_for_string("(").unwrap());
         assert_eq!(Token::TypeEnd, Token::token_for_string(")").unwrap());
 
-        assert_eq!(Token::Eof, Token::token_for_string("\n").unwrap());
+        assert_eq!(Token::Eol, Token::token_for_string("\n").unwrap());
 
         assert_eq!(Token::MemoryStart, Token::token_for_string("[").unwrap());
         assert_eq!(Token::MemoryEnd, Token::token_for_string("]").unwrap());

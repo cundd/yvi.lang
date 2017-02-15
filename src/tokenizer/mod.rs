@@ -87,6 +87,14 @@ impl Tokenizer {
             match token::Token::token_for_char(c) {
                 // If c is a token
                 Some(token) => {
+                    // Store the word in the pipe
+                    if !word.is_empty() {
+                        println!("wb: {:?}", Token::token_for_string(&word));
+
+                        tokens.push((Token::token_for_string(&word)).unwrap());
+                        word.clear();
+                    }
+
                     tokens.push(token);
                 }
 
@@ -199,6 +207,9 @@ mod tests {
 
         let tokens = Tokenizer::tokenize("# This is a comment");
         assert_eq!(0, tokens.len(), "{:?}", tokens);
+
+        let tokens = Tokenizer::tokenize("myVar = 1\nanotherVar = 2");
+        assert_eq!(7, tokens.len(), "{:?}", tokens);
     }
 
     #[test]
