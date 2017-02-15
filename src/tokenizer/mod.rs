@@ -5,10 +5,11 @@ use self::token::Token;
 
 pub struct Tokenizer {}
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 enum TokenizerLockMode {
     Text,
     Number,
+    Comment,
     None,
 }
 
@@ -26,12 +27,24 @@ impl Tokenizer {
                     // Start of a string
                     locked = TokenizerLockMode::Text;
                     continue;
+                } else if c == '#' {
+                    println!("lock comment");
+                    // Start of a comment
+                    locked = TokenizerLockMode::Comment;
+                    continue;
                 } else if Tokenizer::is_part_of_number(c) {
                     println!("lock numeric {}", c);
                     word.push(c);
                     locked = TokenizerLockMode::Number;
                     continue;
                 }
+            }
+
+            if locked == TokenizerLockMode::Comment {
+                if c == '\n' {
+                    locked = TokenizerLockMode::None;
+                }
+                continue;
             }
 
             if locked == TokenizerLockMode::Number {
@@ -101,7 +114,6 @@ impl Tokenizer {
             if locked == TokenizerLockMode::Text {
                 panic!("Unmatched quotes");
             }
-
         }
         if !word.is_empty() {
             println!("Word not empty {:?}", Token::token_for_string(&word));
@@ -134,7 +146,7 @@ mod tests {
     use super::assert::Assert;
 
     #[test]
-    fn tokenize2() {
+    fn tokenize() {
         let tokens = Tokenizer::tokenize("hello my name is daniel");
         assert_eq!(5, tokens.len());
 
@@ -184,6 +196,9 @@ mod tests {
         assert_eq!(Token::TypeEnd, tokens[6]);
         assert_eq!(Token::MathMultiplication, tokens[7]);
         Assert::int_token(&tokens[8], 3);
+
+        let tokens = Tokenizer::tokenize("# This is a comment");
+        assert_eq!(0, tokens.len(), "{:?}", tokens);
     }
 
     #[test]
